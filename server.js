@@ -1,7 +1,9 @@
 const express = require ('express');
 const fs = require('fs');
 const path = require('path');
-const { createContext } = require('vm');
+const { v4: uuidv4 } = require('uuid');
+const db = require('./db/db.json')
+
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -17,18 +19,19 @@ app.get('/' , (req , res) =>
 );
 
 app.get('/notes' , (req , res) =>
-    res.sendFile(path.join(__dirname , 'public/notes.html'))
+    res.sendFile(path.join(__dirname , '/public/notes.html'))
 );
 
 app.get('/api/notes' , (req , res) =>
-    fs.readFile('./db.json' , 'utf8' , (err,data) => {
+    fs.readFile('./db/db.json' , 'utf8' , (err,data) => {
         if(err) {
             console.error(error)
-    const getNotes = JSON.parse(notes)
-    res.json(getNotes)
         }
+    const getNotes = JSON.parse(data)
+    res.json(getNotes)
     })
 );
+
 
 // POST THE NOTES
 app.post("/api/notes", async (req, res) => {
@@ -45,26 +48,25 @@ const createNote = (body) => {
         } else {
             const storedNotes = JSON.parse(storednotes);
 
-            getNotes.push(newNote);
-            getNotes.forEach(note => {
-                note.id = uuidv4();
+            storedNotes.push(newNote);
+            storedNotes.forEach(note => {
+            note.id = uuidv4();
             });
 
             fs.writeFile(
                 "./db/db.json", 
-                JSON.stringify(getNotes), (err) => 
-                    err ? console.log(err) : console.log("Note has been added"))
+                JSON.stringify(storedNotes), (err) => 
+                    err ? console.log(err) : console.log("Note added!"))
         }
     })
 
     return newNote
 }
 
-// removes the notes from json 
+// DELETES the notes from json 
 app.delete('/api/notes/:id', (req, res) => {
     deleteid(req.params.id);
 
-    // ? responding with json db
     res.json(db)
 })
 
@@ -84,7 +86,7 @@ const deleteid = (id) => {
             fs.writeFile(
                 "./db/db.json", 
                 JSON.stringify(getNotes), (err) => 
-                    err ? console.log(err) : console.log("Note has been deleted"))
+                    err ? console.log(err) : console.log("Note deleted!"))
         }
     })
 }
@@ -94,12 +96,11 @@ app.get('*', (req, res) =>
     res.sendFile(path.join(__dirname, '/public/index.html'))
 );
 
-
-  app.use((req, res) => {
-    res.status(404).end();
-  });
+// app.use((req, res) => {
+//     res.status(404).end();
+//   });
   
-  app.listen(PORT, () => {
+app.listen(PORT, () => {
     console.log(`Server running on port http://localhost:${PORT} 🚀`);
   });
 
