@@ -40,6 +40,7 @@ app.post("/api/notes", async (req, res) => {
         res.json(newNote)
 });
 
+// CREATE NOTE
 const createNote = (body) => {
     const newNote = body;
     fs.readFile("./db/db.json", "utf8", (error, storednotes) => {
@@ -96,10 +97,12 @@ app.get('*', (req, res) =>
     res.sendFile(path.join(__dirname, '/public/index.html'))
 );
 
-// app.use((req, res) => {
-//     res.status(404).end();
-//   });
-  
+// 404 ERROR MESSAGE
+app.use((req, res) => {
+    res.status(404).end();
+  });
+
+// DEPLOYMENT
 app.listen(PORT, () => {
     console.log(`Server running on port http://localhost:${PORT} 🚀`);
   });
